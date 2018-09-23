@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
@@ -44,11 +43,11 @@ public class SlurperApplication implements CommandLineRunner {
 		om.setDateFormat(df);
 		int year = 2005;
 		int month = 8;
-		int day = 1;
+		int day = 29;
 		
-//		int y = year;
-//		int m = month;
-//		int d = day;
+		//int y = year;
+		//int m = month;
+		//int d = day;
 		
 		for (int y = year; y<2019; y++) {
 			for (int m = month; m<13; m++) {
@@ -91,15 +90,29 @@ public class SlurperApplication implements CommandLineRunner {
 										int lineNum = 1;
 										for (int i=1; i<paragraphs.size(); i++) {
 											List<Node> childNodes = paragraphs.get(i).childNodes();
-											List<String> lineStrings = childNodes.stream()
-													.map(node -> node.toString().trim())
-													.filter(text -> !text.equals("<br>"))
-													.map(text -> text.replaceAll("&amp;", "&").replaceAll("&nbsp;", "").replaceAll("<.*>", "")).collect(Collectors.toList());
+											List<String> lineStrings = new ArrayList<>();
+											StringBuilder sb = new StringBuilder();
+											for (Node childNode : childNodes) {
+												String childNodeText = childNode.toString();
+												if (childNode instanceof Element && childNodeText.equals("<br>")) {
+													lineStrings.add(sb.toString());
+													sb = new StringBuilder();
+												} else {
+													sb.append(childNodeText);
+												}
+											}
+											// Add the last string if it's not empty
+											if (sb.length() > 1) {
+												lineStrings.add(sb.toString());
+											}
+											
 											for (int j=0; j<lineStrings.size(); j++) {
-												Line line = new Line(lineStrings.get(j), i, lineNum++);
+												String sanitized = lineStrings.get(j).replaceAll("&amp;", "&").replaceAll("&nbsp;", "").replaceAll("<.*?>", "").trim();
+												Line line = new Line(sanitized, i, lineNum++);
 												lines.add(line);
 											}
 										}
+											
 										poem.setLines(lines);
 										File targetFile = new File("/Users/yateam/poems/" + y + "/" + 
 												monthString + "/" + dayString + "/" + 
