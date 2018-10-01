@@ -6,7 +6,7 @@
 
 	<groupId>org.amy</groupId>
 	<artifactId>slurper</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>slurper</name>
